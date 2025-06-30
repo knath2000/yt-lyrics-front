@@ -4,14 +4,6 @@
   "framework": "nextjs",
   "installCommand": "pnpm install",
   "devCommand": "pnpm dev",
-  "env": {
-    "NEXT_PUBLIC_API_BASE": "@next_public_api_base"
-  },
-  "build": {
-    "env": {
-      "NEXT_PUBLIC_API_BASE": "@next_public_api_base"
-    }
-  },
   "functions": {
     "app/**/*.{js,ts,tsx}": {
       "maxDuration": 30
