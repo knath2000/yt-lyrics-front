@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Backend Connection Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>YouTube Lyrics Backend Connection Test</h1>
+    
+    <div class="info">
+        <strong>Backend URL:</strong> https://onlyminorspdf-onlyminor.hf.space
+    </div>
+    
+    <button onclick="testHealthEndpoint()">Test Health Endpoint</button>
+    <button onclick="testAPIConnection()">Test API Connection</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        const API_BASE = "https://onlyminorspdf-onlyminor.hf.space";
+        
+        function addResult(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}:</strong> ${message}`;
+            results.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testHealthEndpoint() {
+            addResult('Testing health endpoint...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addResult(`✅ Health check successful! Status: ${data.status}, Time: ${data.timestamp}`, 'success');
+                } else {
+                    addResult(`❌ Health check failed: ${response.status} - ${response.statusText}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ Health check error: ${error.message}`, 'error');
+                if (error.message.includes('CORS')) {
+                    addResult('🚨 CORS Error detected! The backend may not be allowing requests from this origin.', 'error');
+                }
+            }
+        }
+        
+        async function testAPIConnection() {
+            addResult('Testing API connection with sample request...', 'info');
+            
+            try {
+                const response = await fetch(`${API_BASE}/api/jobs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        youtubeUrl: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
+                    })
+                });
+                
+                const data = await response.text();
+                
+                if (response.ok) {
+                    addResult(`✅ API request successful! Response: ${data}`, 'success');
+                } else {
+                    addResult(`⚠️ API request returned: ${response.status} - ${data}`, 'error');
+                }
+            } catch (error) {
+                addResult(`❌ API request error: ${error.message}`, 'error');
+                if (error.message.includes('CORS')) {
+                    addResult('🚨 CORS Error detected! The backend may not be allowing POST requests from this origin.', 'error');
+                }
+            }
+        }
+        
+        // Auto-run health check on page load
+        window.onload = function() {
+            addResult('Page loaded. Backend URL: ' + API_BASE, 'info');
+            testHealthEndpoint();
+        };
+    </script>
+</body>
+</html> 

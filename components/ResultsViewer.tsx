@@ -1,22 +1,30 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { getJobResults, TranscriptionResults } from "../lib/api";
+import { fetchResultsFromUrl, TranscriptionResults, JobStatusResponse } from "../lib/api";
+import dynamic from "next/dynamic";
+
+// Dynamically import to avoid SSR issues with window/YouTube
+const VideoWithSubtitles = dynamic(() => import("./VideoWithSubtitles"), { ssr: false });
 
 interface ResultsViewerProps {
-  jobId: string;
+  jobStatus: JobStatusResponse;
+  youtubeUrl: string;
 }
 
-export default function ResultsViewer({ jobId }: ResultsViewerProps) {
+export default function ResultsViewer({ jobStatus, youtubeUrl }: ResultsViewerProps) {
   const [results, setResults] = useState<TranscriptionResults | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [viewMode, setViewMode] = useState<"srt" | "plain" | "words">("srt");
+  const [viewMode, setViewMode] = useState<"srt" | "plain" | "words" | "video">("srt");
 
   useEffect(() => {
     async function fetchResults() {
       try {
-        const data = await getJobResults(jobId);
+        if (!jobStatus.resultUrl) {
+          throw new Error("No result URL available");
+        }
+        const data = await fetchResultsFromUrl(jobStatus.resultUrl);
         setResults(data);
       } catch (err: any) {
         setError(err.message || "Failed to load results");
@@ -26,7 +34,7 @@ export default function ResultsViewer({ jobId }: ResultsViewerProps) {
     }
 
     fetchResults();
-  }, [jobId]);
+  }, [jobStatus.resultUrl]);
 
   if (loading) {
     return (
@@ -66,7 +74,7 @@ export default function ResultsViewer({ jobId }: ResultsViewerProps) {
         </div>
         
         {/* View mode selector */}
-        <div className="flex gap-2 mb-4">
+        <div className="flex gap-2 mb-4 flex-wrap">
           <button
             onClick={() => setViewMode("srt")}
             className={`px-3 py-1 text-sm rounded ${
@@ -97,10 +105,20 @@ export default function ResultsViewer({ jobId }: ResultsViewerProps) {
           >
             🔤 Word-by-Word
           </button>
+          <button
+            onClick={() => setViewMode("video")}
+            className={`px-3 py-1 text-sm rounded ${
+              viewMode === "video" 
+                ? "bg-green-600 text-white" 
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+            }`}
+          >
+            🎬 Watch Video
+          </button>
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded border max-h-96 overflow-y-auto">
+      <div className="bg-white p-4 rounded border max-h-[32rem] overflow-y-auto">
         {viewMode === "srt" && (
           <pre className="text-sm whitespace-pre-wrap font-mono">
             {results.srt}
@@ -126,6 +144,11 @@ export default function ResultsViewer({ jobId }: ResultsViewerProps) {
                 </span>
               </div>
             ))}
+          </div>
+        )}
+        {viewMode === "video" && results && (
+          <div className="mt-4">
+            <VideoWithSubtitles youtubeUrl={youtubeUrl} srt={results.srt} />
           </div>
         )}
       </div>

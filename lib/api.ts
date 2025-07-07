@@ -3,7 +3,7 @@ export interface CreateJobResponse {
 }
 
 export interface JobStatusResponse {
-  status: "queued" | "processing" | "done" | "error";
+  status: "queued" | "processing" | "done" | "completed" | "error";
   pct: number;
   resultUrl?: string;
   statusMessage?: string;

@@ -61,7 +61,9 @@ export default function JobForm() {
   }
 
   const hasActiveJob = !!jobId;
-  const jobComplete = hasActiveJob && jobStatus && (jobStatus.status === "done" || jobStatus.status === "error");
+  const jobComplete = hasActiveJob && jobStatus && (
+    jobStatus.status === "done" || jobStatus.status === "completed" || jobStatus.status === "error"
+  );
 
   return (
     <div className="w-full max-w-4xl">
@@ -124,10 +126,10 @@ export default function JobForm() {
       {error && <p className="mt-4 text-red-600">{error}</p>}
       
       {/* Show results when job is complete */}
-      {jobComplete && jobStatus?.status === "done" && jobId && jobStatus.resultUrl && (
+      {jobComplete && (jobStatus?.status === "done" || jobStatus?.status === "completed") && jobId && jobStatus.resultUrl && (
         <div className="mt-6">
           <h3 className="text-lg font-semibold mb-3">Transcription Results</h3>
-          <ResultsViewer jobStatus={jobStatus} />
+          <ResultsViewer jobStatus={jobStatus} youtubeUrl={url} />
         </div>
       )}
     </div>
@@ -153,7 +155,7 @@ function BackendStatusDisplay({ status, color }: BackendStatusDisplayProps) {
       done: 'bg-blue-600',
       error: 'bg-red-600'
     }
-  };
+  } as const;
 
   return (
     <div>
@@ -199,7 +201,7 @@ function BackendStatusDisplay({ status, color }: BackendStatusDisplayProps) {
         <p className="text-sm text-gray-700">{status.statusMessage}</p>
       )}
       
-      {status.status === "done" && (
+      {(status.status === "done" || status.status === "completed") && (
         <p className="text-green-700 font-medium mt-2">✅ Transcription complete!</p>
       )}
       
