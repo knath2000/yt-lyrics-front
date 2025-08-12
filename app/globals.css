@@ -1,3 +1,167 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities; 
+
+/* Liquid Glass tokens and utilities */
+
+:root {
+  /* Blur tokens */
+  --glass-blur-s: 10px;
+  --glass-blur-m: 16px;
+  --glass-blur-l: 28px;
+
+  /* Light mode alphas */
+  --glass-fill-alpha-light: 0.16;
+  --glass-border-alpha-light: 0.26;
+
+  /* Dark mode alphas */
+  --glass-fill-alpha-dark: 0.24;
+  --glass-border-alpha-dark: 0.36;
+
+  /* Theme-aware values (light default) */
+  --glass-fill: rgba(255, 255, 255, var(--glass-fill-alpha-light));
+  --glass-border: rgba(255, 255, 255, var(--glass-border-alpha-light));
+  --glass-shadow: 0 2px 8px rgba(0,0,0,0.12);
+
+  /* Subtle tint gradients */
+  --glass-tint-1: rgba(255,255,255,0.10);
+  --glass-tint-2: rgba(255,255,255,0.02);
+  --glass-highlight: linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0) 40%);
+
+  /* Animated background gradient colors */
+  --bg1: #3b82f6; /* blue-500 */
+  --bg2: #8b5cf6; /* violet-500 */
+  --bg3: #ec4899; /* pink-500 */
+  --bg4: #06b6d4; /* cyan-500 */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --glass-fill: rgba(20, 20, 20, var(--glass-fill-alpha-dark));
+    --glass-border: rgba(255, 255, 255, var(--glass-border-alpha-dark));
+    --glass-shadow: 0 2px 10px rgba(0,0,0,0.18);
+    --glass-tint-1: rgba(255,255,255,0.06);
+    --glass-tint-2: rgba(255,255,255,0.01);
+    --glass-highlight: linear-gradient(to bottom, rgba(255,255,255,0.22), rgba(255,255,255,0) 40%);
+  }
+}
+
+/* Animated wallpaper background (conic + radial blend) */
+.animated-gradient {
+  position: fixed;
+  inset: 0;
+  z-index: 0; /* above body background, below content */
+  background:
+    radial-gradient(60% 60% at 10% 10%, color-mix(in oklab, var(--bg1) 30%, transparent), transparent 70%),
+    radial-gradient(70% 70% at 90% 20%, color-mix(in oklab, var(--bg2) 30%, transparent), transparent 75%),
+    conic-gradient(from 180deg at 50% 50%, var(--bg1), var(--bg2), var(--bg3), var(--bg4), var(--bg1));
+  filter: saturate(110%) brightness(105%);
+  opacity: 0.35;
+  transform: translateZ(0);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animated-gradient {
+    animation: hueOrbit 12s cubic-bezier(.65,0,.35,1) infinite;
+  }
+  @keyframes hueOrbit {
+    0%   { transform: translate3d(0,0,0) rotate(0deg); }
+    50%  { transform: translate3d(0,0,0) rotate(180deg); }
+    100% { transform: translate3d(0,0,0) rotate(360deg); }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animated-gradient { animation: none; opacity: 0.25; }
+}
+
+/* Liquid glass surfaces */
+.glass {
+  position: relative;
+  backdrop-filter: blur(var(--glass-blur-m)) saturate(1.2);
+  -webkit-backdrop-filter: blur(var(--glass-blur-m)) saturate(1.2);
+  background:
+    var(--glass-highlight),
+    radial-gradient(120% 140% at 10% 0%, var(--glass-tint-1), var(--glass-tint-2) 60%),
+    var(--glass-fill);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-strong {
+  backdrop-filter: blur(var(--glass-blur-l)) saturate(1.25);
+  -webkit-backdrop-filter: blur(var(--glass-blur-l)) saturate(1.25);
+  background:
+    var(--glass-highlight),
+    conic-gradient(from 210deg at 70% 10%, rgba(255,255,255,0.10), rgba(255,255,255,0) 40%, rgba(255,255,255,0.08) 75%, rgba(255,255,255,0.10)),
+    var(--glass-fill);
+}
+
+.glass-divider::before {
+  content: "";
+  position: absolute; left: 0; right: 0; top: 0;
+  height: 1px;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.40), rgba(255,255,255,0.00));
+  mix-blend-mode: screen;
+}
+
+/* Glass inputs & buttons */
+.glass-input {
+  @apply w-full rounded-lg px-3 py-2 outline-none text-gray-900 placeholder-gray-500;
+  background:
+    radial-gradient(120% 140% at 0% 0%, rgba(255,255,255,0.10), rgba(255,255,255,0.02) 60%),
+    rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.26);
+  backdrop-filter: blur(var(--glass-blur-s)) saturate(1.15);
+  -webkit-backdrop-filter: blur(var(--glass-blur-s)) saturate(1.15);
+}
+
+@media (prefers-color-scheme: dark) {
+  .glass-input { @apply text-gray-100 placeholder-gray-300; }
+}
+
+.glass-button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  color: white;
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.25), rgba(255,255,255,0.06)),
+    linear-gradient(135deg, color-mix(in oklab, var(--bg2) 70%, var(--bg1)), color-mix(in oklab, var(--bg3) 70%, var(--bg4)));
+  border: 1px solid rgba(255,255,255,0.28);
+  box-shadow: 0 8px 32px rgba(31,38,135,0.20);
+  transition: transform 160ms ease, box-shadow 160ms ease, filter 160ms ease;
+}
+
+.glass-button:hover { transform: translateY(-2px); box-shadow: 0 10px 36px rgba(31,38,135,0.28); filter: saturate(1.1); }
+.glass-button:active { transform: translateY(0); }
+.glass-button:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (prefers-reduced-motion: reduce) {
+  .glass-button { transition: opacity 120ms ease; transform: none; }
+  .glass-button:hover { transform: none; }
+}
+
+/* Accessibility: high contrast variants */
+@media (prefers-contrast: more) {
+  .glass, .glass-strong, .glass-input {
+    background-color: rgba(20,20,20,0.92);
+    color: #fff;
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+}
+
+/* Fallback when backdrop-filter is unsupported */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .glass, .glass-strong, .glass-input {
+    background:
+      linear-gradient(to bottom, rgba(255,255,255,0.18), rgba(255,255,255,0.12)),
+      radial-gradient(120% 140% at 10% 0%, rgba(255,255,255,0.10), rgba(255,255,255,0.02) 60%),
+      rgba(255,255,255,0.14);
+    backdrop-filter: none; -webkit-backdrop-filter: none;
+  }
+}

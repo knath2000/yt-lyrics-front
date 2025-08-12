@@ -66,12 +66,12 @@ export default function JobForm() {
   );
 
   return (
-    <div className="w-full max-w-4xl">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <div className="w-full max-w-3xl mx-auto">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
         <input
           type="url"
           placeholder="Enter YouTube music URL"
-          className="border p-2 rounded"
+          className="glass-input"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           required
@@ -80,7 +80,7 @@ export default function JobForm() {
 
         {/* Model selector */}
         <select
-          className="border p-2 rounded"
+          className="glass-input"
           value={preset}
           onChange={(e) => setPreset(e.target.value as ModelPreset)}
           disabled={loading || (hasActiveJob && !jobComplete)}
@@ -91,7 +91,7 @@ export default function JobForm() {
 
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 rounded disabled:opacity-50"
+          className="glass-button disabled:opacity-50"
           disabled={loading || (hasActiveJob && !jobComplete)}
         >
           {loading ? "Submitting job..." : "Transcribe"}
@@ -102,7 +102,7 @@ export default function JobForm() {
         <div className="mt-6 space-y-4">
           <h3 className="text-lg font-semibold">Job Progress</h3>
           {jobId && (
-            <div className="p-4 border rounded-lg bg-purple-50">
+            <div className="glass p-4 rounded-xl">
               <p className="text-sm text-gray-600 mb-2">Job ID: {jobId}</p>
               {jobStatus && (
                 <BackendStatusDisplay status={jobStatus} color="purple" />
@@ -114,7 +114,7 @@ export default function JobForm() {
             <div className="mt-4 text-center">
               <button
                 onClick={resetForm}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+                className="glass-button"
               >
                 New Transcription
               </button>
